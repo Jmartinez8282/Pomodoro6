@@ -62,6 +62,14 @@ jobs:
     name: End-to-end and accessibility
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    # Playwright's own image, with the browsers and their system libraries
+    # already installed. Installing them at runtime instead meant a ~300MB
+    # download plus an `apt-get` that stalled for 7-20 minutes on this runner
+    # image, intermittently and for reasons entirely outside this repo. The tag
+    # must track @playwright/test in package.json — a mismatch is refused at
+    # startup rather than silently running the wrong browsers.
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
     steps:
       - uses: actions/checkout@v4
 
@@ -72,30 +80,18 @@ jobs:
 
       - run: npm ci
 
-      # Browser binaries are ~300MB and identical for a given Playwright
-      # version, so they are cached. The apt system libraries are not cacheable
-      # and must be installed on every run.
-      - name: Resolve Playwright version
-        id: playwright
-        run: echo "version=$(node -p 'require("@playwright/test/package.json").version')" >> "$GITHUB_OUTPUT"
-
-      - name: Cache browser binaries
-        id: playwright-cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
-
-      - name: Install browsers
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: npx playwright install chromium webkit
-
-      # Separated from the download so an apt stall cannot hold the 300MB
-      # fetch hostage, and so it is obvious which of the two is at fault.
-      # `--with-deps` combines them and has hung for 20+ minutes on this runner.
-      - name: Install system libraries
-        timeout-minutes: 8
-        run: npx playwright install-deps chromium webkit
+      # Makes the comment above enforceable rather than aspirational: bumping
+      # @playwright/test without bumping the container tag would otherwise run
+      # the tests against whatever browsers the old image happens to carry.
+      - name: Verify container matches @playwright/test
+        run: |
+          expected=$(node -p 'require("@playwright/test/package.json").version')
+          actual=$(npx playwright --version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+          if [ "$expected" != "$actual" ]; then
+            echo "::error::Container has Playwright $actual but package.json pins $expected. Update the container image tag in this workflow."
+            exit 1
+          fi
+          echo "Playwright $actual matches package.json"
 
       # Includes axe-core scans of every route in both themes, a 320px overflow
       # check, and the assertion that no analytics request fires before consent.
