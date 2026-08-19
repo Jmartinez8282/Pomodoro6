@@ -77,13 +77,21 @@ export const sessionSchema = z.object({
 export const tasksSchema = z.array(taskSchema).max(1000);
 export const sessionsSchema = z.array(sessionSchema).max(MAX_SESSIONS);
 
-/** The shape of the export/import file. */
+/**
+ * The export/import envelope.
+ *
+ * Only the envelope is typed here; the payload stays `unknown` and is run
+ * through the same `parseSettings` / `parseTasks` / `parseSessions` helpers
+ * that guard reads from storage. One validation path for both means an import
+ * can never be laxer than a load — and a single malformed task is dropped
+ * rather than rejecting the whole file.
+ */
 export const backupSchema = z.object({
   version: z.number().int().min(1),
   exportedAt: isoDate,
-  settings: settingsSchema.partial().optional(),
-  tasks: tasksSchema.optional(),
-  sessions: sessionsSchema.optional(),
+  settings: z.unknown().optional(),
+  tasks: z.unknown().optional(),
+  sessions: z.unknown().optional(),
 });
 
 export type Backup = z.infer<typeof backupSchema>;

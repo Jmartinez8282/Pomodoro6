@@ -198,10 +198,17 @@ export const useTasksStore = create<TasksStore>()(
   ),
 );
 
-export const selectVisibleTasks = (state: TasksStore): Task[] => {
-  const ordered = [...state.tasks].sort(byOrder);
-  if (state.filter === 'active') return ordered.filter((t) => !t.isCompleted);
-  if (state.filter === 'completed') return ordered.filter((t) => t.isCompleted);
+/**
+ * Sort and filter tasks for display.
+ *
+ * Deliberately a plain function over values, not a Zustand selector: it builds
+ * a new array, so passing it to `useTasksStore` would fail the store's identity
+ * check on every render and loop forever. Call it inside `useMemo` instead.
+ */
+export const selectVisibleTasks = (tasks: readonly Task[], filter: TaskFilter): Task[] => {
+  const ordered = [...tasks].sort(byOrder);
+  if (filter === 'active') return ordered.filter((task) => !task.isCompleted);
+  if (filter === 'completed') return ordered.filter((task) => task.isCompleted);
   return ordered;
 };
 

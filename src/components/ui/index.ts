@@ -15,7 +15,11 @@ export { ProgressRing, type ProgressRingProps } from './progress-ring';
 export { Slider, type SliderProps } from './slider';
 export { Switch, type SwitchProps } from './switch';
 export { Select, type SelectProps, type SelectOption } from './select';
-export { Tabs, TabsContent, type TabsProps, type TabItem } from './tabs';
+export {
+  SegmentedControl,
+  type SegmentedControlProps,
+  type SegmentedOption,
+} from './segmented-control';
 export { EmptyState, type EmptyStateProps, type EmptyStateAction } from './empty-state';
 export { Skeleton, type SkeletonProps } from './skeleton';
 export { VisuallyHidden } from './visually-hidden';

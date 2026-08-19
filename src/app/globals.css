@@ -79,7 +79,9 @@
 
   --color-foreground: oklch(0.235 0.008 106); /* 14.9:1 on background */
   --color-muted-foreground: oklch(0.505 0.012 106); /* 5.4:1  — AA body text */
-  --color-subtle-foreground: oklch(0.63 0.012 106); /* 3.3:1  — non-text only */
+  /* 3.3:1 — clears 1.4.11 for icons and borders but NOT 1.4.3 for text.
+     Never apply this to a text node; use --color-muted-foreground. */
+  --color-subtle-foreground: oklch(0.63 0.012 106);
 
   --color-border: oklch(0.905 0.005 106);
   --color-border-strong: oklch(0.83 0.007 106);
@@ -107,7 +109,8 @@
 
   --color-foreground: oklch(0.965 0.003 106); /* 15.2:1 on background */
   --color-muted-foreground: oklch(0.74 0.008 106); /* 6.9:1  — AA body text */
-  --color-subtle-foreground: oklch(0.6 0.01 106); /* 3.6:1  — non-text only */
+  /* 3.6:1 — icons and borders only; see the light-mode note above. */
+  --color-subtle-foreground: oklch(0.6 0.01 106);
 
   --color-border: oklch(0.31 0.008 106);
   --color-border-strong: oklch(0.42 0.01 106);

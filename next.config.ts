@@ -14,6 +14,18 @@ import type { NextConfig } from 'next';
  * fully static app. The trade is revisited when the app gains a server: at that
  * point pages are dynamic anyway and the nonce becomes free.
  */
+/**
+ * Whether this instance is actually served over HTTPS.
+ *
+ * Not `NODE_ENV === 'production'`: `next start` runs in production mode over
+ * plain HTTP locally and in CI, so keying off it would emit HTTPS-enforcing
+ * headers on an HTTP origin. Vercel always sets `VERCEL_ENV`, so its presence —
+ * or an explicitly https site URL — is the honest signal.
+ */
+const isHttpsOrigin =
+  process.env.VERCEL_ENV !== undefined ||
+  (process.env.NEXT_PUBLIC_SITE_URL?.startsWith('https://') ?? false);
+
 const csp = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com",
@@ -29,8 +41,12 @@ const csp = [
   "base-uri 'self'",
   "form-action 'self'",
   "object-src 'none'",
-  'upgrade-insecure-requests',
-].join('; ');
+  // HTTPS origins only. WebKit honours this strictly and rewrites
+  // http://localhost to https://localhost, which breaks every asset over plain
+  // HTTP — so emitting it unconditionally silently kills local development and
+  // the Safari E2E run while looking fine in Chrome.
+  ...(isHttpsOrigin ? ['upgrade-insecure-requests'] : []),
+].filter(Boolean).join('; ');
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
@@ -42,10 +58,17 @@ const nextConfig: NextConfig = {
         source: '/:path*',
         headers: [
           { key: 'Content-Security-Policy', value: csp },
-          {
-            key: 'Strict-Transport-Security',
-            value: 'max-age=63072000; includeSubDomains; preload',
-          },
+          // Same reasoning: an HSTS header served over HTTP is ignored, but
+          // pinning localhost to HTTPS in a developer's browser profile is
+          // painful to undo.
+          ...(isHttpsOrigin
+            ? [
+                {
+                  key: 'Strict-Transport-Security',
+                  value: 'max-age=63072000; includeSubDomains; preload',
+                },
+              ]
+            : []),
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'X-Frame-Options', value: 'DENY' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
