@@ -11,7 +11,10 @@ const config = [
       'playwright-report/**',
       'test-results/**',
       'next-env.d.ts',
-      'public/sw.js',
+      // Globs, not exact names: a build that cannot overwrite the existing
+      // worker leaves numbered copies ("sw 2.js"), and linting a 43KB minified
+      // bundle produces a wall of noise that hides real findings.
+      'public/sw*.js',
       'public/workbox-*.js',
     ],
   },

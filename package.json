@@ -2,12 +2,13 @@
   "name": "gitishdone",
   "version": "1.0.0-beta.1",
   "private": true,
-  "description": "GitIshDone — a pomodoro timer and task system for staying focused.",
+  "description": "GitIshDone \u2014 a pomodoro timer and task system for staying focused.",
   "engines": {
     "node": ">=22.11.0"
   },
   "scripts": {
     "dev": "next dev",
+    "prebuild": "rm -f public/sw*.js",
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint .",
