@@ -37,9 +37,19 @@ export function TimerPanel() {
     <section aria-label="Pomodoro timer" className="flex flex-col items-center gap-7">
       {/* Its own scroll container: at 320px the three labels plus durations are
           wider than the viewport, and the page itself must never scroll
-          sideways. */}
-      <div className="-mx-4 w-[calc(100%+2rem)] [scrollbar-width:none] overflow-x-auto px-4 [&::-webkit-scrollbar]:hidden">
-        <div className="flex justify-center">
+          sideways.
+
+          Width is plain `w-full`, not a `calc(100% + 2rem)` full-bleed with a
+          negative margin — that rounds up past the parent on fractional
+          layouts and leaks a stray pixel of page-level overflow on some
+          platforms but not others.
+
+          The inner `w-max min-w-full` is what makes centring safe inside a
+          scroll container: `justify-center` alone makes overflowing content
+          unreachable past the left edge, because there is no scrollable area
+          before the centred start. */}
+      <div className="w-full [scrollbar-width:none] overflow-x-auto [&::-webkit-scrollbar]:hidden">
+        <div className="flex w-max min-w-full justify-center">
           <SegmentedControl
             label="Timer mode"
             value={timer.mode}
