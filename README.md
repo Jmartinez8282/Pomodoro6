@@ -14,7 +14,7 @@ A pomodoro timer and task system that stays honest about where your time goes.
 - **Themes** — light, dark, and system, across five accent palettes
 - **Sound** — completion chimes and ambient loops, fully synthesized (no audio files)
 - **Keyboard-first** — every action has a shortcut; nothing needs a mouse
-- Works offline; your data never leaves your browser
+- **Installable PWA** that works offline; your data never leaves your browser
 
 ---
 
@@ -175,6 +175,8 @@ npm run build
 ```
 
 Requires Node 22.11+.
+
+`build` pins `--webpack`: Serwist injects the service worker manifest through a webpack plugin and has no Turbopack equivalent yet. Dev still runs on Turbopack, which is unaffected because the service worker is disabled there anyway.
 
 ### Testing
 

@@ -30,7 +30,10 @@ export default defineConfig({
   webServer: {
     // Tests run against a production build: dev-mode double-rendering and
     // missing minification hide exactly the class of bug E2E is meant to catch.
-    command: `npx next build && npx next start -p ${PORT}`,
+    // `npm run build`, not `npx next build`: the build script pins --webpack
+    // for Serwist, and bypassing it silently produces a build with no service
+    // worker — so the offline tests would fail for the wrong reason.
+    command: `npm run build && npx next start -p ${PORT}`,
     url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 180_000,

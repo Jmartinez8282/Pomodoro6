@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="GitIshDone">
+  <rect width="512" height="512" rx="112" fill="#1c1b1a"/>
+  <circle cx="256" cy="272" r="150" fill="none" stroke="#3d4f47" stroke-width="34"/>
+  <!-- Three-quarter arc, drawn from 12 o'clock: a session in progress. -->
+  <path d="M256 122a150 150 0 1 1-106.07 43.93"
+        fill="none" stroke="#7fb8a0" stroke-width="34" stroke-linecap="round"/>
+  <rect x="238" y="74" width="36" height="34" rx="12" fill="#7fb8a0"/>
+</svg>

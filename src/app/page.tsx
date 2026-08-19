@@ -10,7 +10,12 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <AppShell>
-      <main id="main" className="mx-auto w-full max-w-5xl flex-1 px-4 py-8 sm:py-12">
+      {/* Centred vertically once there is room to spare. On a short viewport
+          `flex-1` simply lets it fill, so nothing is ever pushed off-screen. */}
+      <main
+        id="main"
+        className="mx-auto flex w-full max-w-5xl flex-1 flex-col justify-center px-4 py-8 sm:py-12"
+      >
         {/* Single column on phones, side-by-side from lg where both panels fit
             without either being cramped. The timer stays first in the DOM, so
             keyboard and screen-reader order matches importance at every width. */}

@@ -1,9 +1,10 @@
 'use client';
 
 import { useRef } from 'react';
-import { Dialog, Select, Slider, Switch } from '@/components/ui';
+import { Dialog, Select, Slider, Switch, toast } from '@/components/ui';
 import { ACCENT_IDS, ACCENT_LABELS, SETTINGS_LIMITS } from '@/config/defaults';
 import { getAudioEngine } from '@/lib/audio/audio-engine';
+import { useNotifications } from '@/hooks/use-notifications';
 import { useSettingsStore } from '@/store/settings-store';
 import { useTimerStore } from '@/store/timer-store';
 import type { AccentId, AlarmSoundId, AmbientSoundId } from '@/types';
@@ -32,6 +33,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   const settings = useSettingsStore((state) => state.settings);
   const setSetting = useSettingsStore((state) => state.set);
   const dispatch = useTimerStore((state) => state.dispatch);
+  const notifications = useNotifications();
   const firstFieldRef = useRef<HTMLElement | null>(null);
 
   /**
@@ -121,6 +123,34 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
             description="Single-key accelerators like Space and R. Turn off if they conflict with your screen reader."
             checked={settings.shortcutsEnabled}
             onCheckedChange={(value) => update('shortcutsEnabled', value)}
+          />
+
+          <Switch
+            label="Desktop notifications"
+            description={
+              !notifications.isSupported
+                ? 'Your browser does not support notifications.'
+                : notifications.permission === 'denied'
+                  ? 'Blocked. Re-enable notifications for this site in your browser settings.'
+                  : 'Get told when a session ends while this tab is in the background.'
+            }
+            checked={settings.notificationsEnabled && notifications.permission === 'granted'}
+            disabled={!notifications.canEnable}
+            onCheckedChange={async (value) => {
+              // The permission prompt fires here, on an explicit opt-in, rather
+              // than on page load — see use-notifications for why that matters.
+              if (!value) {
+                update('notificationsEnabled', false);
+                return;
+              }
+              const granted = await notifications.request();
+              update('notificationsEnabled', granted);
+              if (!granted) {
+                toast.info('Notifications not enabled', {
+                  description: 'Your browser declined the request. The chime will still play.',
+                });
+              }
+            }}
           />
         </Section>
 

@@ -89,9 +89,10 @@ export function ProgressRing({
             'motion-reduce:transition-none',
             indicatorClassName,
           )}
-          // A zero-length dash still paints a round cap — a stray dot at 12
-          // o'clock on a ring that has not started.
-          style={clamped === 0 ? { strokeLinecap: 'butt' } : undefined}
+          // A round cap on a near-zero arc paints a stray dot at 12 o'clock,
+          // which reads as a rendering glitch rather than as "not started".
+          // Switch to a butt cap until the arc is longer than the cap itself.
+          style={clamped * circumference < strokeWidth ? { strokeLinecap: 'butt' } : undefined}
         />
       </svg>
       {children ? (

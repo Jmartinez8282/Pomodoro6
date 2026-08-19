@@ -1,6 +1,5 @@
 'use client';
 
-import { useId } from 'react';
 import type { DailyStat } from '@/types';
 import { formatFocusTime } from '@/lib/utils/time';
 import { cn } from '@/lib/utils/cn';
@@ -14,76 +13,64 @@ export interface FocusBarChartProps {
 const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 /**
- * Weekly focus, as plain SVG.
+ * Weekly focus time.
  *
- * A charting library would add tens of kilobytes for one seven-bar chart whose
- * every visual decision we want to control anyway. Hand-rolling also means the
- * bars inherit `--color-accent`, so the chart re-themes with the rest of the UI
- * for free.
+ * Built from layout elements rather than SVG. A seven-bar chart needs no path
+ * maths, and a stretched SVG (`preserveAspectRatio="none"`) distorts corner
+ * radii into ovals — the kind of detail that quietly makes a UI look unfinished.
+ * Bars inherit `--color-accent`, so the chart re-themes with everything else.
  *
- * The accessible representation is a table, not the SVG. A screen reader user
- * gets exact numbers instead of a described picture of them.
+ * The accessible representation is a table, not the bars: a screen reader user
+ * gets exact numbers rather than a description of a picture of them.
  */
 export function FocusBarChart({ days, goalMs }: FocusBarChartProps) {
-  const titleId = useId();
   const max = Math.max(goalMs, ...days.map((day) => day.focusMs), 1);
+  const goalPercent = goalMs > 0 && goalMs <= max ? (goalMs / max) * 100 : null;
 
   return (
     <figure className="space-y-3">
-      <div className="relative h-40 w-full">
-        <svg
-          viewBox="0 0 280 100"
-          preserveAspectRatio="none"
-          className="size-full overflow-visible"
-          aria-labelledby={titleId}
-          role="img"
-        >
-          <title id={titleId}>Focus time for each day this week</title>
+      <div className="relative flex h-40 items-end gap-1.5 sm:gap-3" aria-hidden>
+        {goalPercent !== null ? (
+          <div
+            className="absolute inset-x-0 border-t border-dashed border-border-strong"
+            style={{ bottom: `${goalPercent}%` }}
+          />
+        ) : null}
 
-          {goalMs > 0 && goalMs <= max ? (
-            <line
-              x1={0}
-              x2={280}
-              y1={100 - (goalMs / max) * 100}
-              y2={100 - (goalMs / max) * 100}
-              className="stroke-border-strong"
-              strokeWidth={1}
-              strokeDasharray="3 3"
-              vectorEffect="non-scaling-stroke"
-            />
-          ) : null}
-
-          {days.map((day, index) => {
-            const height = (day.focusMs / max) * 100;
-            const width = 280 / days.length;
-            const barWidth = width * 0.55;
-            const x = index * width + (width - barWidth) / 2;
-
-            return (
-              <rect
-                key={day.dayKey}
-                x={x}
-                y={100 - height}
-                width={barWidth}
-                height={Math.max(height, day.focusMs > 0 ? 1.5 : 0)}
-                rx={2}
-                className={cn(day.goalMet ? 'fill-accent' : 'fill-track')}
+        {days.map((day) => {
+          const height = (day.focusMs / max) * 100;
+          return (
+            <div key={day.dayKey} className="flex h-full flex-1 items-end justify-center">
+              <div
+                className={cn(
+                  // Capped so the bars stay bars at desktop widths instead of
+                  // becoming full-column blocks.
+                  'w-full max-w-14 rounded-t-md transition-[height] duration-500 motion-reduce:transition-none',
+                  // Always the accent. Colouring only goal-met days meant that
+                  // a week of solid-but-short sessions rendered entirely grey,
+                  // which reads as "no data" rather than "not quite there" —
+                  // discouraging, and factually misleading. Meeting the goal is
+                  // encoded as full strength instead.
+                  'bg-accent',
+                  day.goalMet ? 'opacity-100' : 'opacity-40',
+                )}
+                // A day with a few minutes on it should still show a sliver
+                // rather than reading as an empty day.
+                style={{ height: day.focusMs > 0 ? `max(${height}%, 3px)` : '0%' }}
               />
-            );
-          })}
-        </svg>
+            </div>
+          );
+        })}
       </div>
 
-      <div className="grid grid-cols-7 gap-1 text-center">
+      <div className="flex gap-1.5 sm:gap-3" aria-hidden>
         {days.map((day) => (
-          <span key={day.dayKey} className="text-xs text-muted-foreground">
+          <span key={day.dayKey} className="flex-1 text-center text-xs text-muted-foreground">
             {DAY_LABELS[new Date(`${day.dayKey}T12:00:00`).getDay()]}
           </span>
         ))}
       </div>
 
-      {/* The real accessible content. Visually hidden because the chart above
-          already conveys it to sighted users. */}
       <figcaption className="sr-only">
         <table>
           <caption>Focus time by day this week</caption>

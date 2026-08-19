@@ -1,3 +1,4 @@
+import withSerwistInit from '@serwist/next';
 import type { NextConfig } from 'next';
 
 /**
@@ -85,4 +86,25 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+/**
+ * Service worker for offline support.
+ *
+ * Disabled in development: a service worker that aggressively caches during
+ * development serves stale code and produces bug reports for things already
+ * fixed. `/api/*` is excluded from runtime caching from the start, so that
+ * authenticated responses can never be cached once a backend exists — much
+ * easier to get right now than to remember later.
+ *
+ * Note: Serwist injects its manifest through a webpack plugin and has no
+ * Turbopack equivalent yet, so `npm run build` pins `--webpack`. Dev still uses
+ * Turbopack, which is unaffected because the worker is disabled there anyway.
+ */
+const withSerwist = withSerwistInit({
+  swSrc: 'src/app/sw.ts',
+  swDest: 'public/sw.js',
+  disable: process.env.NODE_ENV === 'development',
+  reloadOnOnline: true,
+  exclude: [/\.map$/, /^manifest.*\.js$/, /\/api\//],
+});
+
+export default withSerwist(nextConfig);

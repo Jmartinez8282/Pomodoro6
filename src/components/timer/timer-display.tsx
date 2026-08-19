@@ -35,7 +35,9 @@ export function TimerDisplay({ remainingMs, mode, isRunning }: TimerDisplayProps
           // digits shift horizontally every second and the whole ring jitters.
           'tabular font-semibold text-foreground',
           'text-[clamp(3rem,16vw,5.25rem)] leading-none',
-          !isRunning && 'opacity-70',
+          // Dimmed while stopped so the running state is obvious at a glance,
+          // but not so far that an idle timer reads as disabled.
+          !isRunning && 'opacity-85',
         )}
       >
         {formatDuration(remainingMs)}
