@@ -23,7 +23,7 @@ const iconButtonVariants = cva(
       // Sizes below 44px keep a transparent tap-target overlay via `before:`,
       // so a visually small control still satisfies WCAG 2.5.8 on touch.
       size: {
-        sm: 'size-8 before:absolute before:-inset-2 relative',
+        sm: 'relative size-8 before:absolute before:-inset-2',
         md: 'size-10',
         lg: 'size-12',
       },
@@ -33,7 +33,8 @@ const iconButtonVariants = cva(
 );
 
 export interface IconButtonProps
-  extends Omit<React.ComponentPropsWithRef<'button'>, 'color' | 'children'>,
+  extends
+    Omit<React.ComponentPropsWithRef<'button'>, 'color' | 'children'>,
     VariantProps<typeof iconButtonVariants> {
   /**
    * Required. An icon-only control is invisible to screen readers without it,

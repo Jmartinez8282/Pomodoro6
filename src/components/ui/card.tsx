@@ -20,12 +20,7 @@ const variants = {
   sunken: 'bg-surface-sunken',
 } as const;
 
-export function Card({
-  className,
-  variant = 'raised',
-  padding = 'md',
-  ...props
-}: CardProps) {
+export function Card({ className, variant = 'raised', padding = 'md', ...props }: CardProps) {
   return (
     <div
       className={cn(
@@ -40,7 +35,9 @@ export function Card({
 }
 
 export function CardHeader({ className, ...props }: React.ComponentPropsWithRef<'div'>) {
-  return <div className={cn('mb-4 flex items-start justify-between gap-3', className)} {...props} />;
+  return (
+    <div className={cn('mb-4 flex items-start justify-between gap-3', className)} {...props} />
+  );
 }
 
 export function CardTitle({ className, ...props }: React.ComponentPropsWithRef<'h2'>) {

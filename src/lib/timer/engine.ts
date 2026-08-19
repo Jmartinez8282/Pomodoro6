@@ -16,11 +16,7 @@
  * The old implementation decremented a counter once per interval callback, so
  * every throttled or dropped callback silently lost a second.
  */
-import {
-  AWAY_THRESHOLD_MS,
-  CLOCK_SKEW_TOLERANCE_MS,
-  MIN_RECORDABLE_MS,
-} from '@/config/defaults';
+import { AWAY_THRESHOLD_MS, CLOCK_SKEW_TOLERANCE_MS, MIN_RECORDABLE_MS } from '@/config/defaults';
 import type { ClockAnchor, Settings, TimerMode, TimerStatus } from '@/types';
 import { MODE_DURATION_KEY } from '@/types';
 import { clamp, minutesToMs } from '@/lib/utils/time';
@@ -257,8 +253,7 @@ function completeSession(state: EngineState, ctx: EngineContext): EngineResult {
     message: completionMessage(state.mode, upcoming, advanced.durationMs),
   });
 
-  const autoStart =
-    upcoming === 'focus' ? settings.autoStartFocus : settings.autoStartBreaks;
+  const autoStart = upcoming === 'focus' ? settings.autoStartFocus : settings.autoStartBreaks;
   if (!autoStart) return { state: advanced, effects };
 
   const started = beginRun(advanced, ctx, '');
@@ -292,11 +287,7 @@ function abandonEffects(state: EngineState, ctx: EngineContext): EngineEffect[] 
 
 // ── The reducer ────────────────────────────────────────────────────────────
 
-export function reduce(
-  state: EngineState,
-  event: EngineEvent,
-  ctx: EngineContext,
-): EngineResult {
+export function reduce(state: EngineState, event: EngineEvent, ctx: EngineContext): EngineResult {
   const { settings } = ctx;
 
   switch (event.type) {

@@ -128,17 +128,7 @@ function computeHeatmap(days: Map<string, DailyStat>, today: string): HeatmapCel
     const dayKey = addDays(start, i);
     const focusMs = days.get(dayKey)?.focusMs ?? 0;
     const level: HeatmapCell['level'] =
-      focusMs === 0
-        ? 0
-        : flat
-          ? 4
-          : focusMs <= q1
-            ? 1
-            : focusMs <= q2
-              ? 2
-              : focusMs <= q3
-                ? 3
-                : 4;
+      focusMs === 0 ? 0 : flat ? 4 : focusMs <= q1 ? 1 : focusMs <= q2 ? 2 : focusMs <= q3 ? 3 : 4;
     cells.push({ dayKey, focusMs, level });
   }
   return cells;

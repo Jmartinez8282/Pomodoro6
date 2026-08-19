@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 
 test('does not scroll horizontally at 320px', async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 640 });

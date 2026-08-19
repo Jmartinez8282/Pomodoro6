@@ -1,0 +1,97 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# A new push supersedes the run in flight; no point burning minutes on a commit
+# nobody is waiting for any more.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Typecheck, lint, unit tests, build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      # Run as separate steps rather than one chained command so a failure
+      # names itself in the GitHub UI instead of surfacing as "npm exited 1".
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Format check
+        run: npm run format:check
+
+      # Cheap guardrail for the mistake that would matter most: NEXT_PUBLIC_ is
+      # inlined into the client bundle, so a credential with that prefix is
+      # published to every visitor.
+      - name: Check for secrets exposed via NEXT_PUBLIC_
+        run: |
+          if grep -rInE 'NEXT_PUBLIC_[A-Z0-9_]*(SECRET|TOKEN|PASSWORD|PRIVATE|_KEY)\b' \
+               --include='*.ts' --include='*.tsx' --include='*.mjs' --include='*.yml' . ; then
+            echo "::error::A NEXT_PUBLIC_ variable looks like a credential. Client env vars are public."
+            exit 1
+          fi
+
+      - name: Unit tests
+        run: npm run test -- --coverage
+
+      - name: Build
+        run: npm run build
+
+  e2e:
+    name: End-to-end and accessibility
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      - name: Install browsers
+        run: npx playwright install --with-deps chromium webkit
+
+      # Includes axe-core scans of every route in both themes, a 320px overflow
+      # check, and the assertion that no analytics request fires before consent.
+      - name: Run Playwright
+        run: npm run test:e2e
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
+
+  audit:
+    name: Dependency audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm audit --audit-level=high

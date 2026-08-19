@@ -4,6 +4,7 @@ import { siteConfig } from '@/config/site';
 import { AppChrome } from '@/components/layout/app-chrome';
 import { HydrationGate } from '@/components/layout/hydration-gate';
 import { ThemeProvider } from '@/components/layout/theme-provider';
+import { ConsentBanner } from '@/components/analytics/consent-banner';
 import { Toaster } from '@/components/ui';
 import './globals.css';
 
@@ -73,6 +74,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </a>
           {children}
           <Toaster />
+          <ConsentBanner />
         </ThemeProvider>
       </body>
     </html>

@@ -36,7 +36,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       shortBreakMode: () => dispatch({ type: 'SET_MODE', mode: 'shortBreak' }),
       longBreakMode: () => dispatch({ type: 'SET_MODE', mode: 'longBreak' }),
       newTask: () => {
-        const input = document.querySelector<HTMLInputElement>('input[placeholder^="What are you"]');
+        const input = document.querySelector<HTMLInputElement>(
+          'input[placeholder^="What are you"]',
+        );
         input?.focus();
       },
       settings: () => setSettingsOpen(true),

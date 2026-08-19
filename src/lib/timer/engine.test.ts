@@ -56,8 +56,7 @@ function run(
   return { state: current, effects };
 }
 
-const sessionsOf = (effects: EngineEffect[]) =>
-  effects.filter((e) => e.type === 'RECORD_SESSION');
+const sessionsOf = (effects: EngineEffect[]) => effects.filter((e) => e.type === 'RECORD_SESSION');
 
 describe('derivations', () => {
   it('maps each mode to its configured duration', () => {
@@ -193,11 +192,7 @@ describe('long-break cadence', () => {
       const duration = durationFor(state.mode, s);
       const startedAt = T0 + i * 100 * MIN;
       state = reduce(state, { type: 'START' }, { ...ctx(startedAt), settings: s }).state;
-      state = reduce(
-        state,
-        { type: 'TICK' },
-        { ...ctx(startedAt + duration), settings: s },
-      ).state;
+      state = reduce(state, { type: 'TICK' }, { ...ctx(startedAt + duration), settings: s }).state;
       observed.push(state.mode);
     }
 
@@ -236,12 +231,16 @@ describe('machine sleep', () => {
     const started = reduce(createInitialState(s), { type: 'START' }, ctx(T0)).state;
 
     const wake = T0 + 60 * MIN;
-    const result = reduce(started, { type: 'TICK' }, {
-      ...ctx(wake),
-      // performance.now() does not advance across suspend on some platforms.
-      mono: 1 * MIN,
-      settings: s,
-    });
+    const result = reduce(
+      started,
+      { type: 'TICK' },
+      {
+        ...ctx(wake),
+        // performance.now() does not advance across suspend on some platforms.
+        mono: 1 * MIN,
+        settings: s,
+      },
+    );
 
     const sessions = sessionsOf(result.effects);
     expect(sessions).toHaveLength(1);
@@ -272,10 +271,14 @@ describe('clock tampering', () => {
     const started = reduce(createInitialState(settings()), { type: 'START' }, ctx(T0)).state;
 
     // 10 real minutes pass, then the clock is set back an hour.
-    const result = reduce(started, { type: 'TICK' }, {
-      ...ctx(T0 + 10 * MIN - 60 * MIN),
-      mono: 10 * MIN,
-    });
+    const result = reduce(
+      started,
+      { type: 'TICK' },
+      {
+        ...ctx(T0 + 10 * MIN - 60 * MIN),
+        mono: 10 * MIN,
+      },
+    );
 
     // Without correction the deadline would sit an hour in the future and the
     // session would never end. The deadline moves with the clock instead.
@@ -286,10 +289,14 @@ describe('clock tampering', () => {
 
   it('tolerates ordinary scheduler jitter without re-anchoring', () => {
     const started = reduce(createInitialState(settings()), { type: 'START' }, ctx(T0)).state;
-    const result = reduce(started, { type: 'TICK' }, {
-      ...ctx(T0 + 5 * MIN),
-      mono: 5 * MIN + 150, // 150ms of drift — well inside tolerance
-    });
+    const result = reduce(
+      started,
+      { type: 'TICK' },
+      {
+        ...ctx(T0 + 5 * MIN),
+        mono: 5 * MIN + 150, // 150ms of drift — well inside tolerance
+      },
+    );
     expect(result.state).toBe(started);
   });
 });
@@ -300,10 +307,14 @@ describe('settings changes', () => {
     // tore down the interval and reset the countdown to the new full length.
     const started = reduce(createInitialState(settings()), { type: 'START' }, ctx(T0)).state;
 
-    const result = reduce(started, { type: 'SETTINGS_CHANGED' }, {
-      ...ctx(T0 + 10 * MIN),
-      settings: settings({ focusMinutes: 50 }),
-    });
+    const result = reduce(
+      started,
+      { type: 'SETTINGS_CHANGED' },
+      {
+        ...ctx(T0 + 10 * MIN),
+        settings: settings({ focusMinutes: 50 }),
+      },
+    );
 
     expect(result.state).toBe(started);
     expect(remainingAt(result.state, T0 + 10 * MIN)).toBe(15 * MIN);
@@ -311,10 +322,14 @@ describe('settings changes', () => {
 
   it('re-seeds an idle timer to the new duration', () => {
     const state = createInitialState(settings());
-    const result = reduce(state, { type: 'SETTINGS_CHANGED' }, {
-      ...ctx(T0),
-      settings: settings({ focusMinutes: 50 }),
-    });
+    const result = reduce(
+      state,
+      { type: 'SETTINGS_CHANGED' },
+      {
+        ...ctx(T0),
+        settings: settings({ focusMinutes: 50 }),
+      },
+    );
     expect(result.state.durationMs).toBe(50 * MIN);
     expect(result.state.remainingMs).toBe(50 * MIN);
   });
@@ -325,10 +340,14 @@ describe('settings changes', () => {
       { event: { type: 'PAUSE' }, at: T0 + 20 * MIN }, // 5 min left
     ]);
 
-    const shortened = reduce(state, { type: 'SETTINGS_CHANGED' }, {
-      ...ctx(T0 + 21 * MIN),
-      settings: settings({ focusMinutes: 3 }),
-    });
+    const shortened = reduce(
+      state,
+      { type: 'SETTINGS_CHANGED' },
+      {
+        ...ctx(T0 + 21 * MIN),
+        settings: settings({ focusMinutes: 3 }),
+      },
+    );
     // Remaining can never exceed the session length, or progress goes negative.
     expect(shortened.state.durationMs).toBe(3 * MIN);
     expect(shortened.state.remainingMs).toBe(3 * MIN);
@@ -355,9 +374,7 @@ describe('skip and reset', () => {
   });
 
   it('records nothing when resetting a timer that never started', () => {
-    const { effects } = run(createInitialState(settings()), [
-      { event: { type: 'RESET' }, at: T0 },
-    ]);
+    const { effects } = run(createInitialState(settings()), [{ event: { type: 'RESET' }, at: T0 }]);
     expect(sessionsOf(effects)).toHaveLength(0);
   });
 

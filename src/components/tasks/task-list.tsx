@@ -44,10 +44,7 @@ export function TaskList() {
 
   const tasks = useMemo(() => selectVisibleTasks(allTasks, filter), [allTasks, filter]);
 
-  const remaining = useMemo(
-    () => allTasks.filter((task) => !task.isCompleted).length,
-    [allTasks],
-  );
+  const remaining = useMemo(() => allTasks.filter((task) => !task.isCompleted).length, [allTasks]);
 
   const emptyState = useMemo(() => {
     // Three genuinely different situations. Collapsing them into one "No tasks"
@@ -96,7 +93,9 @@ export function TaskList() {
       </CardHeader>
 
       <div className="space-y-4">
-        <TaskComposer onAdd={(title, estimatedPomodoros) => addTask({ title, estimatedPomodoros })} />
+        <TaskComposer
+          onAdd={(title, estimatedPomodoros) => addTask({ title, estimatedPomodoros })}
+        />
 
         {totalCount > 0 ? (
           <SegmentedControl

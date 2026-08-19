@@ -48,7 +48,12 @@ export function Slider({
 
   return (
     <div className={cn('space-y-2', className)}>
-      <div className={cn('flex items-baseline justify-between gap-3', labelVisuallyHidden && 'sr-only')}>
+      <div
+        className={cn(
+          'flex items-baseline justify-between gap-3',
+          labelVisuallyHidden && 'sr-only',
+        )}
+      >
         <label htmlFor={id} className="text-sm font-medium text-foreground">
           {label}
         </label>

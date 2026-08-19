@@ -20,10 +20,7 @@ export function StatsDashboard() {
   // Recomputed only when the ledger or the goal changes. Deriving on every
   // render would be wasteful across a year of sessions; caching it in the store
   // would let the numbers drift from the log.
-  const stats = useMemo(
-    () => computeStats(sessions, settings),
-    [sessions, settings],
-  );
+  const stats = useMemo(() => computeStats(sessions, settings), [sessions, settings]);
 
   if (!hydrated) {
     return (
@@ -73,9 +70,7 @@ export function StatsDashboard() {
           label="Streak"
           value={`${stats.streak.current} ${stats.streak.current === 1 ? 'day' : 'days'}`}
           hint={
-            stats.streak.atRisk
-              ? 'Hit your goal today to keep it'
-              : `Best: ${stats.streak.longest}`
+            stats.streak.atRisk ? 'Hit your goal today to keep it' : `Best: ${stats.streak.longest}`
           }
           icon={<Flame className="size-4" />}
           emphasis={stats.streak.current > 0 && !stats.streak.atRisk}

@@ -54,9 +54,7 @@ export function TaskItem({
           htmlFor={checkboxId}
           className={cn(
             'block cursor-pointer text-sm break-words',
-            task.isCompleted
-              ? 'text-muted-foreground line-through'
-              : 'text-foreground',
+            task.isCompleted ? 'text-muted-foreground line-through' : 'text-foreground',
           )}
         >
           {task.title}
@@ -69,15 +67,19 @@ export function TaskItem({
         ) : null}
       </div>
 
-      {/* Controls stay in the DOM at all times and become visible on hover or
-          keyboard focus. Hiding them behind hover alone would make the whole
-          row unusable by keyboard. */}
+      {/* Controls are always in the DOM and, by default, always visible. They
+          fade out only on devices that actually support hover: a touch device
+          has no hover state, so a hover-gated control there is simply invisible
+          and the whole row becomes unusable. Keyboard focus reveals them too,
+          for hover-capable devices being driven by keyboard. */}
       <div
         className={cn(
           'flex shrink-0 items-center gap-0.5',
-          'opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100',
-          'motion-reduce:transition-none',
-          isActive && 'opacity-100',
+          'transition-opacity motion-reduce:transition-none',
+          '[@media(hover:hover)]:opacity-0',
+          '[@media(hover:hover)]:group-focus-within:opacity-100',
+          '[@media(hover:hover)]:group-hover:opacity-100',
+          isActive && '[@media(hover:hover)]:opacity-100',
         )}
       >
         {/* Reorder as buttons, not drag-only. Drag-and-drop is unreachable by
@@ -110,11 +112,7 @@ export function TaskItem({
         <IconButton
           size="sm"
           variant="danger"
-          label={
-            confirmingDelete
-              ? `Confirm delete "${task.title}"`
-              : `Delete "${task.title}"`
-          }
+          label={confirmingDelete ? `Confirm delete "${task.title}"` : `Delete "${task.title}"`}
           icon={<Trash2 className={cn('size-4', confirmingDelete && 'text-danger')} />}
           onClick={() => {
             // Two-step delete rather than a modal: a confirmation dialog for a

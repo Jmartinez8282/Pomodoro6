@@ -3,12 +3,7 @@
 import { useRef, useState } from 'react';
 import { Download, RotateCcw, Upload } from 'lucide-react';
 import { Button, toast } from '@/components/ui';
-import {
-  backupSchema,
-  parseSessions,
-  parseSettings,
-  parseTasks,
-} from '@/lib/storage/schemas';
+import { backupSchema, parseSessions, parseSettings, parseTasks } from '@/lib/storage/schemas';
 import { useSessionsStore } from '@/store/sessions-store';
 import { useSettingsStore } from '@/store/settings-store';
 import { useTasksStore } from '@/store/tasks-store';

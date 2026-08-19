@@ -35,7 +35,9 @@ export class AudioEngine {
     if (typeof window === 'undefined') return null;
     if (this.context) return this.context;
 
-    const Ctor = window.AudioContext ?? (window as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    const Ctor =
+      window.AudioContext ??
+      (window as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
     if (!Ctor) return null;
 
     this.context = new Ctor();
@@ -122,7 +124,10 @@ export class AudioEngine {
     sound: Exclude<AlarmSoundId, 'none'>,
     volume: number,
   ): AudioScheduledSourceNode[] {
-    const voices: Record<Exclude<AlarmSoundId, 'none'>, { freqs: number[]; decay: number; type: OscillatorType }> = {
+    const voices: Record<
+      Exclude<AlarmSoundId, 'none'>,
+      { freqs: number[]; decay: number; type: OscillatorType }
+    > = {
       chime: { freqs: [880, 1108.73, 1318.51], decay: 1.6, type: 'sine' },
       bell: { freqs: [523.25, 1046.5, 1567.98], decay: 2.4, type: 'sine' },
       marimba: { freqs: [659.25, 987.77], decay: 0.9, type: 'triangle' },

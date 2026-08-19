@@ -18,11 +18,21 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'lcov'],
-      // Thresholds are enforced where correctness actually lives. Chasing a
-      // global percentage would mean writing assertions about presentational
-      // markup, which passes CI without catching anything.
-      include: ['src/lib/**/*.ts', 'src/store/**/*.ts'],
-      exclude: ['src/lib/**/*.test.ts', 'src/**/index.ts'],
+      // Scoped to the pure logic, where a threshold is a real signal: the timer
+      // engine, stats aggregation, data validation, and date maths. Deliberately
+      // excludes browser glue — Web Audio, storage wiring, analytics — which is
+      // covered by the Playwright suite in a real browser, and where chasing a
+      // unit-coverage number would mean asserting against mocks rather than
+      // against behaviour.
+      include: [
+        'src/lib/timer/**/*.ts',
+        'src/lib/stats/**/*.ts',
+        'src/lib/storage/schemas.ts',
+        'src/lib/storage/memory-adapter.ts',
+        'src/lib/storage/local-storage-adapter.ts',
+        'src/lib/utils/**/*.ts',
+      ],
+      exclude: ['src/**/*.test.ts', 'src/**/index.ts'],
       thresholds: {
         lines: 85,
         functions: 85,

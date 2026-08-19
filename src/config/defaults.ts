@@ -63,13 +63,7 @@ export const AWAY_THRESHOLD_MS = 30_000;
  */
 export const CLOCK_SKEW_TOLERANCE_MS = 2000;
 
-export const ACCENT_IDS: readonly AccentId[] = [
-  'sage',
-  'clay',
-  'indigo',
-  'plum',
-  'amber',
-] as const;
+export const ACCENT_IDS: readonly AccentId[] = ['sage', 'clay', 'indigo', 'plum', 'amber'] as const;
 
 export const ACCENT_LABELS: Record<AccentId, string> = {
   sage: 'Sage',

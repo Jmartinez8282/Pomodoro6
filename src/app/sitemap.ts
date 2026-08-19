@@ -4,6 +4,11 @@ import { siteConfig } from '@/config/site';
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     { url: siteConfig.url, lastModified: new Date(), changeFrequency: 'monthly', priority: 1 },
-    { url: `${siteConfig.url}/stats`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
+    {
+      url: `${siteConfig.url}/stats`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.5,
+    },
   ];
 }

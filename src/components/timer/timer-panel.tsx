@@ -4,12 +4,7 @@ import { useSettingsStore } from '@/store/settings-store';
 import { useTasksStore, selectActiveTask } from '@/store/tasks-store';
 import { useTimer } from '@/hooks/use-timer';
 import { useHydrated } from '@/hooks/use-hydrated';
-import {
-  ProgressRing,
-  SegmentedControl,
-  Skeleton,
-  type SegmentedOption,
-} from '@/components/ui';
+import { ProgressRing, SegmentedControl, Skeleton, type SegmentedOption } from '@/components/ui';
 import { MODE_LABELS, TIMER_MODES, type TimerMode } from '@/types';
 import { CycleDots } from './cycle-dots';
 import { TimerControls } from './timer-controls';
@@ -43,7 +38,7 @@ export function TimerPanel() {
       {/* Its own scroll container: at 320px the three labels plus durations are
           wider than the viewport, and the page itself must never scroll
           sideways. */}
-      <div className="-mx-4 w-[calc(100%+2rem)] overflow-x-auto px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="-mx-4 w-[calc(100%+2rem)] [scrollbar-width:none] overflow-x-auto px-4 [&::-webkit-scrollbar]:hidden">
         <div className="flex justify-center">
           <SegmentedControl
             label="Timer mode"

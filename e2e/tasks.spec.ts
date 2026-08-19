@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 
 test.describe('tasks', () => {
   test('shows a first-run empty state, then the task once added', async ({ page }) => {

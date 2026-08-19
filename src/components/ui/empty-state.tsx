@@ -36,7 +36,8 @@ export function EmptyState({
       className={cn(
         'flex flex-col items-center justify-center text-center',
         size === 'sm' ? 'gap-2 py-8' : 'gap-3 py-14',
-        variant === 'card' && 'rounded-2xl border border-dashed border-border bg-surface-sunken/50 px-6',
+        variant === 'card' &&
+          'rounded-2xl border border-dashed border-border bg-surface-sunken/50 px-6',
         className,
       )}
     >

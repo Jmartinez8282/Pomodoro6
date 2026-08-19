@@ -46,7 +46,9 @@ const csp = [
   // HTTP — so emitting it unconditionally silently kills local development and
   // the Safari E2E run while looking fine in Chrome.
   ...(isHttpsOrigin ? ['upgrade-insecure-requests'] : []),
-].filter(Boolean).join('; ');
+]
+  .filter(Boolean)
+  .join('; ');
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,

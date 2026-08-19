@@ -11,7 +11,11 @@ function settings(overrides: Partial<Settings> = {}): Settings {
 }
 
 /** Build a focus session on a given local day. */
-function session(dayKey: string, minutes: number, overrides: Partial<SessionRecord> = {}): SessionRecord {
+function session(
+  dayKey: string,
+  minutes: number,
+  overrides: Partial<SessionRecord> = {},
+): SessionRecord {
   const started = new Date(`${dayKey}T10:00:00`);
   return {
     id: `${dayKey}-${minutes}-${Math.random()}`,
@@ -47,11 +51,7 @@ describe('computeStats', () => {
 
   it('sums only focus time into the daily total', () => {
     const stats = computeStats(
-      [
-        session(TODAY, 25),
-        session(TODAY, 25),
-        { ...session(TODAY, 5), mode: 'shortBreak' },
-      ],
+      [session(TODAY, 25), session(TODAY, 25), { ...session(TODAY, 5), mode: 'shortBreak' }],
       settings(),
       NOW,
     );
@@ -92,11 +92,7 @@ describe('streaks', () => {
 
   it('counts consecutive goal-meeting days back from today', () => {
     const stats = computeStats(
-      [
-        session('2026-03-15', 40),
-        session('2026-03-14', 40),
-        session('2026-03-13', 40),
-      ],
+      [session('2026-03-15', 40), session('2026-03-14', 40), session('2026-03-13', 40)],
       goal,
       NOW,
     );
@@ -107,11 +103,7 @@ describe('streaks', () => {
     // Yesterday and the day before met the goal; today has not yet. The streak
     // is still alive — punishing someone at 9am for not having finished their
     // day would be both wrong and demoralising.
-    const stats = computeStats(
-      [session('2026-03-14', 40), session('2026-03-13', 40)],
-      goal,
-      NOW,
-    );
+    const stats = computeStats([session('2026-03-14', 40), session('2026-03-13', 40)], goal, NOW);
 
     expect(stats.streak.current).toBe(2);
     expect(stats.streak.atRisk).toBe(true);

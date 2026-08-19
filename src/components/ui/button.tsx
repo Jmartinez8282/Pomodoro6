@@ -42,7 +42,8 @@ export const buttonVariants = cva(
 );
 
 export interface ButtonProps
-  extends Omit<React.ComponentPropsWithRef<'button'>, 'color'>,
+  extends
+    Omit<React.ComponentPropsWithRef<'button'>, 'color'>,
     VariantProps<typeof buttonVariants> {
   /**
    * Render into the child element instead of a `<button>`.

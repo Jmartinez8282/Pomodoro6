@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 
 test.describe('timer', () => {
   test('counts down and can be paused, holding its remaining time', async ({ page }) => {

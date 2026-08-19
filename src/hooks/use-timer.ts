@@ -85,7 +85,9 @@ export function useTimer(): UseTimerResult {
 
     const loop = () => {
       const current = Date.now();
-      const whole = Math.ceil(Math.max(0, (useTimerStore.getState().endsAt ?? current) - current) / 1000);
+      const whole = Math.ceil(
+        Math.max(0, (useTimerStore.getState().endsAt ?? current) - current) / 1000,
+      );
       // Commit only when the displayed second changes: re-rendering at 60Hz to
       // paint identical digits would be pure waste.
       if (whole !== lastWhole) {

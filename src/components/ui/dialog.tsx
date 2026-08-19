@@ -88,7 +88,7 @@ export function Dialog({
             // Mobile: bottom sheet, capped so it never covers the whole screen.
             'inset-x-0 bottom-0 max-h-[85dvh] rounded-t-2xl',
             // sm and up: centred modal.
-            'sm:inset-x-auto sm:bottom-auto sm:top-1/2 sm:left-1/2 sm:max-h-[85dvh] sm:w-full',
+            'sm:inset-x-auto sm:top-1/2 sm:bottom-auto sm:left-1/2 sm:max-h-[85dvh] sm:w-full',
             'sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl',
             sizes[size],
             'data-[state=open]:animate-slide-up sm:data-[state=open]:animate-scale-in',

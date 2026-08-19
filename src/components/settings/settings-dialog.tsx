@@ -133,9 +133,11 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
               // Preview immediately — choosing a sound you cannot hear is a
               // guess, and the click that opened the menu already unlocked audio.
               if (value !== 'none') {
-                void getAudioEngine().unlock().then(() => {
-                  getAudioEngine().playAlarm(value, settings.alarmVolume);
-                });
+                void getAudioEngine()
+                  .unlock()
+                  .then(() => {
+                    getAudioEngine().playAlarm(value, settings.alarmVolume);
+                  });
               }
             }}
             options={alarmOptions}
@@ -145,9 +147,11 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
             value={Math.round(settings.alarmVolume * 100)}
             onValueChange={(value) => update('alarmVolume', value / 100)}
             onValueCommit={(value) => {
-              void getAudioEngine().unlock().then(() => {
-                getAudioEngine().playAlarm(settings.alarmSound, value / 100);
-              });
+              void getAudioEngine()
+                .unlock()
+                .then(() => {
+                  getAudioEngine().playAlarm(settings.alarmSound, value / 100);
+                });
             }}
             min={0}
             max={100}
@@ -248,7 +252,7 @@ function AccentSwatch({
       className={[
         'size-9 rounded-full border-2 transition-transform',
         'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
-        'motion-reduce:transition-none hover:scale-105 motion-reduce:hover:scale-100',
+        'hover:scale-105 motion-reduce:transition-none motion-reduce:hover:scale-100',
         selected ? 'border-foreground' : 'border-transparent',
       ].join(' ')}
     >

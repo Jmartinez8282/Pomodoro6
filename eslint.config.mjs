@@ -100,7 +100,10 @@ const config = [
         'error',
         {
           patterns: [
-            { group: ['react', 'react-dom', 'next/*', '@/store/*'], message: 'Keep this module pure.' },
+            {
+              group: ['react', 'react-dom', 'next/*', '@/store/*'],
+              message: 'Keep this module pure.',
+            },
           ],
         },
       ],
@@ -118,6 +121,10 @@ const config = [
     rules: {
       'no-console': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
+      // Playwright names its fixture callback `use`, which the React hooks rule
+      // reads as a hook called outside a component. There are no React hooks in
+      // these files at all.
+      'react-hooks/rules-of-hooks': 'off',
     },
   },
 ];

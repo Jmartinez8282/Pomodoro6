@@ -22,10 +22,26 @@ const isoDate = z.string().min(1).max(40);
 export const timerModeSchema = z.enum(['focus', 'shortBreak', 'longBreak']);
 
 export const settingsSchema = z.object({
-  focusMinutes: z.number().int().min(SETTINGS_LIMITS.focusMinutes.min).max(SETTINGS_LIMITS.focusMinutes.max),
-  shortBreakMinutes: z.number().int().min(SETTINGS_LIMITS.shortBreakMinutes.min).max(SETTINGS_LIMITS.shortBreakMinutes.max),
-  longBreakMinutes: z.number().int().min(SETTINGS_LIMITS.longBreakMinutes.min).max(SETTINGS_LIMITS.longBreakMinutes.max),
-  longBreakInterval: z.number().int().min(SETTINGS_LIMITS.longBreakInterval.min).max(SETTINGS_LIMITS.longBreakInterval.max),
+  focusMinutes: z
+    .number()
+    .int()
+    .min(SETTINGS_LIMITS.focusMinutes.min)
+    .max(SETTINGS_LIMITS.focusMinutes.max),
+  shortBreakMinutes: z
+    .number()
+    .int()
+    .min(SETTINGS_LIMITS.shortBreakMinutes.min)
+    .max(SETTINGS_LIMITS.shortBreakMinutes.max),
+  longBreakMinutes: z
+    .number()
+    .int()
+    .min(SETTINGS_LIMITS.longBreakMinutes.min)
+    .max(SETTINGS_LIMITS.longBreakMinutes.max),
+  longBreakInterval: z
+    .number()
+    .int()
+    .min(SETTINGS_LIMITS.longBreakInterval.min)
+    .max(SETTINGS_LIMITS.longBreakInterval.max),
   autoStartBreaks: z.boolean(),
   autoStartFocus: z.boolean(),
   alarmSound: z.enum(['chime', 'bell', 'marimba', 'none']),
@@ -40,7 +56,11 @@ export const settingsSchema = z.object({
   shortcutsEnabled: z.boolean(),
   reducedMotion: z.enum(['system', 'reduce', 'allow']),
   weekStartsOn: z.union([z.literal(0), z.literal(1)]),
-  dailyGoalMinutes: z.number().int().min(SETTINGS_LIMITS.dailyGoalMinutes.min).max(SETTINGS_LIMITS.dailyGoalMinutes.max),
+  dailyGoalMinutes: z
+    .number()
+    .int()
+    .min(SETTINGS_LIMITS.dailyGoalMinutes.min)
+    .max(SETTINGS_LIMITS.dailyGoalMinutes.max),
 });
 
 export const taskSchema = z.object({
@@ -64,8 +84,14 @@ export const sessionSchema = z.object({
   mode: timerModeSchema,
   startedAt: isoDate,
   endedAt: isoDate,
-  plannedMs: z.number().min(0).max(24 * 3_600_000),
-  actualMs: z.number().min(0).max(24 * 3_600_000),
+  plannedMs: z
+    .number()
+    .min(0)
+    .max(24 * 3_600_000),
+  actualMs: z
+    .number()
+    .min(0)
+    .max(24 * 3_600_000),
   completed: z.boolean(),
   wasAway: z.boolean().optional(),
   taskId: z.string().max(64).optional(),
@@ -104,16 +130,26 @@ export type Backup = z.infer<typeof backupSchema>;
 export function parseSettings(value: unknown): Settings {
   const result = settingsSchema.safeParse(value);
   if (result.success) return result.data;
-  // Merge what is salvageable over the defaults so one bad field does not
-  // discard every other preference the user has set. Undefined keys are
-  // stripped first: spreading them would overwrite a good default with
-  // `undefined` rather than leaving it in place.
-  const partial = settingsSchema.partial().safeParse(value);
-  if (!partial.success) return { ...DEFAULT_SETTINGS };
-  const salvaged = Object.fromEntries(
-    Object.entries(partial.data).filter(([, v]) => v !== undefined),
-  ) as Partial<Settings>;
-  return { ...DEFAULT_SETTINGS, ...salvaged };
+
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    return { ...DEFAULT_SETTINGS };
+  }
+
+  // Salvage field by field. `.partial()` is not enough: it still validates
+  // every key that *is* present, so a single out-of-range duration would throw
+  // away the user's theme, their accent, and everything else they had set.
+  // Validating each field against its own schema means one bad value costs
+  // exactly that value.
+  const source = value as Record<string, unknown>;
+  const salvaged: Record<string, unknown> = {};
+
+  for (const [key, fieldSchema] of Object.entries(settingsSchema.shape)) {
+    if (!(key in source)) continue;
+    const field = fieldSchema.safeParse(source[key]);
+    if (field.success) salvaged[key] = field.data;
+  }
+
+  return { ...DEFAULT_SETTINGS, ...(salvaged as Partial<Settings>) };
 }
 
 export function parseTasks(value: unknown): Task[] {
