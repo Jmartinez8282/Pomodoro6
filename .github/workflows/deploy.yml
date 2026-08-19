@@ -1,0 +1,71 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+jobs:
+  # Deployment is gated on CI. This is the whole reason for deploying from
+  # Actions rather than Vercel's Git integration: the native integration
+  # deploys on push regardless of whether the tests passed.
+  preview:
+    name: Preview deploy
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    environment: preview
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+      - run: npx vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+      - run: npx vercel build --token=${{ secrets.VERCEL_TOKEN }}
+
+      - id: deploy
+        run: echo "url=$(npx vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})" >> "$GITHUB_OUTPUT"
+
+      - name: Comment the preview URL
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: preview
+          message: |
+            **Preview deployed** — ${{ steps.deploy.outputs.url }}
+
+            Built from `${{ github.sha }}`.
+
+  production:
+    name: Production deploy
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: ${{ steps.deploy.outputs.url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+      - run: npx vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+      - run: npx vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+      - id: deploy
+        run: echo "url=$(npx vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }})" >> "$GITHUB_OUTPUT"
