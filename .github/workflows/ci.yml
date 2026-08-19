@@ -18,6 +18,8 @@ jobs:
   verify:
     name: Typecheck, lint, unit tests, build
     runs-on: ubuntu-latest
+    # A hung step otherwise burns GitHub's 6-hour default before anyone notices.
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 
@@ -59,6 +61,7 @@ jobs:
   e2e:
     name: End-to-end and accessibility
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
 
@@ -69,8 +72,30 @@ jobs:
 
       - run: npm ci
 
+      # Browser binaries are ~300MB and identical for a given Playwright
+      # version, so they are cached. The apt system libraries are not cacheable
+      # and must be installed on every run.
+      - name: Resolve Playwright version
+        id: playwright
+        run: echo "version=$(node -p 'require("@playwright/test/package.json").version')" >> "$GITHUB_OUTPUT"
+
+      - name: Cache browser binaries
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
+
       - name: Install browsers
-        run: npx playwright install --with-deps chromium webkit
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install chromium webkit
+
+      # Separated from the download so an apt stall cannot hold the 300MB
+      # fetch hostage, and so it is obvious which of the two is at fault.
+      # `--with-deps` combines them and has hung for 20+ minutes on this runner.
+      - name: Install system libraries
+        timeout-minutes: 8
+        run: npx playwright install-deps chromium webkit
 
       # Includes axe-core scans of every route in both themes, a 320px overflow
       # check, and the assertion that no analytics request fires before consent.
@@ -87,6 +112,7 @@ jobs:
   audit:
     name: Dependency audit
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
