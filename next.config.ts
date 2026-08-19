@@ -99,12 +99,22 @@ const nextConfig: NextConfig = {
  * Turbopack equivalent yet, so `npm run build` pins `--webpack`. Dev still uses
  * Turbopack, which is unaffected because the worker is disabled there anyway.
  */
+const isDevelopment = process.env.NODE_ENV === 'development';
+
 const withSerwist = withSerwistInit({
   swSrc: 'src/app/sw.ts',
   swDest: 'public/sw.js',
-  disable: process.env.NODE_ENV === 'development',
   reloadOnOnline: true,
   exclude: [/\.map$/, /^manifest.*\.js$/, /\/api\//],
 });
 
-export default withSerwist(nextConfig);
+/**
+ * The Serwist wrapper is applied only outside development.
+ *
+ * Its `disable` option stops the worker from being *generated*, but the plugin
+ * still installs a `webpack` key on the config — and Turbopack, which is the
+ * dev default in Next 16, refuses to start when it finds one. Skipping the
+ * wrapper entirely keeps `next dev` on Turbopack with no config conflict, and
+ * costs nothing because the service worker was already disabled in dev.
+ */
+export default isDevelopment ? nextConfig : withSerwist(nextConfig);

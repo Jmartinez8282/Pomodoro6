@@ -176,7 +176,7 @@ npm run build
 
 Requires Node 22.11+.
 
-`build` pins `--webpack`: Serwist injects the service worker manifest through a webpack plugin and has no Turbopack equivalent yet. Dev still runs on Turbopack, which is unaffected because the service worker is disabled there anyway.
+`dev` runs on Turbopack; `build` pins `--webpack`. Serwist injects the service worker manifest through a webpack plugin with no Turbopack equivalent yet, and Turbopack refuses to start if it finds a `webpack` key in the config at all — so `next.config.ts` applies the Serwist wrapper only outside development. The service worker is therefore absent in dev (which is what you want: a caching worker in dev serves stale code) and present in every production build.
 
 ### Testing
 
